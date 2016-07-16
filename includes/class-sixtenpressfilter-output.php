@@ -84,7 +84,7 @@ class SixTenPressFilterOutput {
 	 */
 	protected function get_filter_options() {
 		$options = apply_filters( 'sixtenpress_filter_options', array(
-			'container' => 'filter',
+			'container' => 'sixtenpress-filter',
 			'selector'  => '.entry',
 		) );
 
@@ -160,6 +160,9 @@ class SixTenPressFilterOutput {
 				clear: both;
 				margin-bottom: 40px;
 				overflow: visible;
+				width: %3$s;
+			}
+			.main-filter {
 				width: %3$s;
 			}
 			.main-filter ul {
