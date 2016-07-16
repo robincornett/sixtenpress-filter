@@ -101,7 +101,7 @@ class SixTenPressFilterSettings extends SixTenPressFilterValidation {
 	 * @return array
 	 */
 	public function add_tab( $tabs ) {
-		$tabs[] = array( 'id' => 'filter', 'tab' => __( 'Filter', 'sixtenpress-filter' ) );
+		$tabs[] = array( 'id' => 'filter', 'tab' => __( 'Simple Filter', 'sixtenpress-filter' ) );
 
 		return $tabs;
 	}

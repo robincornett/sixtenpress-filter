@@ -8,9 +8,9 @@
  * @link      http://robincornett.com
  * @copyright 2016 Robin Cornett Creative, LLC
  *
- * Plugin Name:       Six/Ten Press Filter
+ * Plugin Name:       Six/Ten Press Simple Filter
  * Plugin URI:        http://robincornett.com
- * Description:       Six/Ten Press Filter makes allows for very simple filtering of a post type archive.
+ * Description:       Six/Ten Press Simple Filter makes allows for very simple filtering of a post type archive.
  * Author:            Robin Cornett
  * Author URI:        https://robincornett.com
  * Text Domain:       sixtenpress-filter
