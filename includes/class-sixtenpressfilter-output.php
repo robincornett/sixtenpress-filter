@@ -35,9 +35,10 @@ class SixTenPressFilterOutput {
 	 * Do genesis specific functions.
 	 */
 	protected function do_genesis_things() {
-		add_action( 'genesis_after_header', array( $this, 'pick_filter' ) );
 		add_action( 'genesis_before_loop', array( $this, 'open_div' ), 25 );
 		add_action( 'genesis_after_endwhile', array( $this, 'close_div' ), 5 );
+		$filter = $this->pick_filter();
+		add_action( 'genesis_before_loop', array( $this, $filter ), 20 );
 	}
 
 	/**
@@ -247,17 +248,17 @@ class SixTenPressFilterOutput {
 	 */
 	public function pick_filter() {
 		if ( ! is_post_type_archive() && ! is_home() ) {
-			return;
+			return '';
 		}
 		$filters = $this->updated_filters();
 		if ( empty( $filters ) ) {
-			return;
+			return '';
 		}
 		$action = 'do_filter_select';
 		if ( is_string( $filters ) ) {
 			$action = 'do_filter_buttons';
 		}
-		add_action( 'sixtenpress_before_filter', array( $this, $action ) );
+		return $action;
 	}
 
 	/**
