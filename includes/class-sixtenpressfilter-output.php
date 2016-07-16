@@ -26,17 +26,6 @@ class SixTenPressFilterOutput {
 		}
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_filter' ) );
 		add_action( 'wp_head', array( $this, 'inline_style' ) );
-		if ( function_exists( 'genesis' ) ) {
-			$this->do_genesis_things();
-		}
-	}
-
-	/**
-	 * Do genesis specific functions.
-	 */
-	protected function do_genesis_things() {
-		add_action( 'genesis_before_loop', array( $this, 'open_div' ), 25 );
-		add_action( 'genesis_after_endwhile', array( $this, 'close_div' ), 5 );
 		$filter = $this->pick_filter();
 		add_action( 'genesis_before_loop', array( $this, $filter ), 20 );
 	}
@@ -85,8 +74,7 @@ class SixTenPressFilterOutput {
 	 */
 	protected function get_filter_options() {
 		$options = apply_filters( 'sixtenpress_filter_options', array(
-			'container' => 'sixtenpress-filter',
-			'selector'  => '.entry',
+			'selector' => '.entry',
 		) );
 
 		return $options;
@@ -156,25 +144,9 @@ class SixTenPressFilterOutput {
 		}
 		$options = $this->get_filter_options();
 		$width   = '100%';
-		$css     = sprintf( '
-			.%1$s {
-				clear: both;
-				margin-bottom: 40px;
-				overflow: visible;
-				width: %3$s;
-			}
-			.main-filter {
-				width: %3$s;
-			}
-			.main-filter ul {
-				text-align: center;
-			}
-			.main-filter li {
-				display: inline-block;
-				margin: 1px;
-			}',
-			$options['container'],
-			$options['selector'],
+		$css     = sprintf( '.main-filter { width: %s; }
+			.main-filter ul { text-align: center; }
+			.main-filter li { display: inline-block; margin: 1px; }',
 			$width
 		);
 
@@ -185,25 +157,6 @@ class SixTenPressFilterOutput {
 
 		// Echo the CSS
 		echo '<style type="text/css" media="screen">' . strip_tags( $css ) . '</style>';
-	}
-
-	/**
-	 * Wraps articles/posts in a div. Required for filter.
-	 */
-	function open_div() {
-		do_action( 'sixtenpress_before_filter' );
-		$options = $this->get_filter_options();
-		echo '<div class="' . $options['container'] . '" id="' . $options['container'] . '">';
-	}
-
-	/**
-	 * Closes the div added above. Required for filter.
-	 *
-	 */
-	function close_div() {
-		echo '</div>';
-		echo '<br clear="all">';
-		do_action( 'sixtenpress_after_filter' );
 	}
 
 	/**
