@@ -106,10 +106,12 @@ class SixTenPressFilterOutput {
 		if ( empty( $post_type ) ) {
 			$post_type = 'post';
 		}
-		if ( isset( $this->setting[ $post_type ]['support'] ) && $this->setting[ $post_type ]['support'] ) {
-			add_post_type_support( $post_type, 'sixtenpress-filter' );
-			$this->posts_per_page( $query, $post_type );
+		$taxonomies = $this->updated_filters();
+		if ( empty( $taxonomies ) ) {
+			return;
 		}
+		add_post_type_support( $post_type, 'sixtenpress-filter' );
+		$this->posts_per_page( $query, $post_type );
 	}
 
 	/**
@@ -171,9 +173,6 @@ class SixTenPressFilterOutput {
 		$taxonomies = get_object_taxonomies( $post_type, 'names' );
 		$taxonomies = 'post' === $post_type ? array( 'category' ) : $taxonomies;
 		if ( $taxonomies ) {
-			if ( ! isset( $this->setting[ $post_type ] ) || null === $this->setting[ $post_type ] ) {
-				$this->setting[ $post_type ] = array();
-			}
 			foreach ( $taxonomies as $taxonomy ) {
 				if ( key_exists( $taxonomy, $this->setting[ $post_type ] ) && $this->setting[ $post_type ][ $taxonomy ] ) {
 					$tax_filters[] = $taxonomy;

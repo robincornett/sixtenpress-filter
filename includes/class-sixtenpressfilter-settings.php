@@ -143,6 +143,12 @@ class SixTenPressFilterSettings extends SixTenPressFilterValidation {
 		$output       = 'names';
 		$post_types   = get_post_types( $args, $output );
 		$post_types[] = 'post';
+		foreach ( $post_types as $post_type ) {
+			$taxonomies = $this->get_taxonomies( $post_type );
+			if ( ! $taxonomies ) {
+				unset( $post_types[ $post_type ] );
+			}
+		}
 
 		return $post_types;
 	}
@@ -425,14 +431,7 @@ class SixTenPressFilterSettings extends SixTenPressFilterValidation {
 	 * @param $args
 	 */
 	public function set_post_type_options( $args ) {
-		$post_type = $args['post_type'];
-		$checkbox_args = array(
-			'setting' => 'support',
-			'label'   => __( 'Enable Filter for this post type?', 'sixtenpress-filter' ),
-			'key'     => $post_type,
-		);
-		$this->do_checkbox( $checkbox_args );
-		echo '<br />';
+		$post_type  = $args['post_type'];
 		$taxonomies = $this->get_taxonomies( $post_type );
 		if ( ! $taxonomies ) {
 			return;

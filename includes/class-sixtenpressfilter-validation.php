@@ -79,7 +79,6 @@ class SixTenPressFilterValidation {
 			}
 		}
 		foreach ( $this->post_types as $post_type ) {
-			$new_value[ $post_type ]['support'] = $this->one_zero( $new_value[ $post_type ]['support'] );
 			$taxonomies = $this->get_taxonomies( $post_type );
 			foreach ( $taxonomies as $taxonomy ) {
 				$new_value[ $post_type ][ $taxonomy ] = $this->one_zero( $new_value[ $post_type ][ $taxonomy ] );
