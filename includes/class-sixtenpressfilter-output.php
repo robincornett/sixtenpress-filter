@@ -74,7 +74,7 @@ class SixTenPressFilterOutput {
 	 */
 	protected function get_filter_options() {
 		$options = apply_filters( 'sixtenpress_filter_options', array(
-			'selector' => '.entry',
+			'selector' => 'main .entry',
 		) );
 
 		return $options;
