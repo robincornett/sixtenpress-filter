@@ -86,9 +86,10 @@ class SixTenPressFilterOutput {
 	 */
 	protected function get_current_post_type() {
 		$post_type_name = get_post_type();
-		if ( false === get_post_type() ) {
+		if ( ! $post_type_name ) {
 			$post_type_name = get_query_var( 'post_type' );
 		}
+		$post_type_name = is_home() ? 'post' : $post_type_name;
 		return $post_type_name;
 	}
 
