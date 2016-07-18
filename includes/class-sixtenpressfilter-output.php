@@ -175,7 +175,7 @@ class SixTenPressFilterOutput {
 		$taxonomies = 'post' === $post_type ? array( 'category' ) : $taxonomies;
 		if ( $taxonomies ) {
 			foreach ( $taxonomies as $taxonomy ) {
-				if ( key_exists( $taxonomy, $this->setting[ $post_type ] ) && $this->setting[ $post_type ][ $taxonomy ] ) {
+				if ( isset( $this->setting[ $post_type ] ) && $this->setting[ $post_type ][ $taxonomy ] ) {
 					$tax_filters[] = $taxonomy;
 				};
 			}
