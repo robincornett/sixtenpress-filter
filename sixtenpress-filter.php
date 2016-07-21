@@ -34,7 +34,6 @@ function sixtenpressfilter_require() {
 		'class-sixtenpressfilter',
 		'class-sixtenpressfilter-help',
 		'class-sixtenpressfilter-output',
-		'class-sixtenpressfilter-validation',
 		'class-sixtenpressfilter-settings',
 	);
 

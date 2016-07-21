@@ -8,7 +8,7 @@
  * @link      http://robincornett.com
  * @copyright 2016 Robin Cornett Creative, LLC
  */
-class SixTenPressFilterSettings extends SixTenPressFilterValidation {
+class SixTenPressFilterSettings {
 
 	/**
 	 * Option registered by plugin.
