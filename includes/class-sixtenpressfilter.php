@@ -17,7 +17,7 @@ class SixTenPressFilter {
 
 	/**
 	 * The settings class.
-	 * @var $settings SixTenPressFilterSettings
+	 * @var $settings SixTenPressFilterSettingsPage
 	 */
 	protected $settings;
 

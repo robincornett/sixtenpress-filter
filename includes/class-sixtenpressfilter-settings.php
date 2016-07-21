@@ -41,96 +41,6 @@ class SixTenPressFilterSettings {
 	protected $tab = 'sixtenpressfilter';
 
 	/**
-	 * Maybe add the submenu page under Settings.
-	 */
-	public function do_submenu_page() {
-
-		$this->page    = 'sixtenpress';
-		$this->setting = $this->get_setting();
-		$sections      = $this->register_sections();
-		$this->fields  = $this->register_fields();
-		if ( ! class_exists( 'SixTenPress' ) ) {
-			$this->page = $this->tab;
-			add_options_page(
-				__( '6/10 Press Filter Settings', 'sixtenpress-filter' ),
-				__( '6/10 Press Filter', 'sixtenpress-filter' ),
-				'manage_options',
-				$this->page,
-				array( $this, 'do_settings_form' )
-			);
-		}
-
-		add_filter( 'sixtenpress_settings_tabs', array( $this, 'add_tab' ) );
-		add_action( 'admin_init', array( $this, 'register_settings' ) );
-
-		$help = new SixTenPressFilterHelp();
-		if ( class_exists( 'SixTenPress' ) ) {
-			add_filter( 'sixtenpress_help_tabs', array( $help, 'tabs' ), 10, 2 );
-		} else {
-			add_action( "load-settings_page_{$this->page}", array( $help, 'help' ) );
-		}
-//		add_filter( 'sixtenpress_help_tabs', array( $help, 'tabs' ), 10, 2 );
-
-		$this->add_sections( $sections );
-		$this->add_fields( $this->fields, $sections );
-	}
-
-	/**
-	 * Output the plugin settings form.
-	 *
-	 * @since 1.0.0
-	 */
-	public function do_settings_form() {
-
-		echo '<div class="wrap">';
-		echo '<h1>' . esc_attr( get_admin_page_title() ) . '</h1>';
-		echo '<form action="options.php" method="post">';
-		settings_fields( $this->page );
-		do_settings_sections( $this->page );
-		wp_nonce_field( "{$this->page}_save-settings", "{$this->page}_nonce", false );
-		submit_button();
-		echo '</form>';
-		echo '</div>';
-
-	}
-
-	/**
-	 * Add filter settings to 6/10 Press as a new tab, rather than creating a unique page.
-	 * @param $tabs
-	 *
-	 * @return array
-	 */
-	public function add_tab( $tabs ) {
-		$tabs[] = array( 'id' => 'filter', 'tab' => __( 'Simple Filter', 'sixtenpress-filter' ) );
-
-		return $tabs;
-	}
-
-	/**
-	 * Add new fields to wp-admin/options-general.php?page=sixtenpressfilter
-	 *
-	 * @since 1.0.0
-	 */
-	public function register_settings() {
-		register_setting( 'sixtenpressfilter', 'sixtenpressfilter', array( $this, 'do_validation_things' ) );
-	}
-
-	/**
-	 * @return array $setting for plugin, or defaults.
-	 */
-	public function get_setting() {
-
-		$defaults = array(
-			'posts_per_page' => (int) get_option( 'posts_per_page', 10 ),
-			'style'          => 1,
-		);
-
-		$setting = get_option( 'sixtenpressfilter', $defaults );
-
-		return wp_parse_args( $setting, $defaults );
-	}
-
-	/**
 	 * Define the array of post types for the plugin to show/use.
 	 * @return array
 	 */
@@ -151,34 +61,6 @@ class SixTenPressFilterSettings {
 		}
 
 		return $post_types;
-	}
-
-	/**
-	 * Register sections for settings page.
-	 *
-	 * @since 3.0.0
-	 */
-	protected function register_sections() {
-
-		$sections = array(
-			'general' => array(
-				'id'    => 'general',
-				'tab'   => 'filter',
-				'title' => __( 'General Settings', 'sixtenpress-filter' ),
-			),
-		);
-
-		$this->post_types = $this->post_types();
-		if ( $this->post_types ) {
-
-			$sections['cpt'] = array(
-				'id'    => 'cpt',
-				'tab'   => 'filter',
-				'title' => __( 'Filter Settings for Content Types', 'sixtenpress-filter' ),
-			);
-		}
-
-		return $sections;
 	}
 
 	/**
@@ -203,58 +85,6 @@ class SixTenPressFilterSettings {
 	}
 
 	/**
-	 * Register settings fields
-	 *
-	 * @param  settings array $sections
-	 *
-	 * @return array $fields settings fields
-	 *
-	 * @since 1.0.0
-	 */
-	protected function register_fields() {
-
-		$fields = array(
-			array(
-				'id'       => 'posts_per_page',
-				'title'    => __( 'Number of Posts to Show on Filter Archives', 'sixtenpress-filter' ),
-				'callback' => 'do_number',
-				'section'  => 'general',
-				'args'     => array(
-					'setting' => 'posts_per_page',
-					'min'     => 1,
-					'max'     => 200,
-					'label'   => __( 'Posts per Page', 'sixtenpress-filter' ),
-				),
-			),
-			array(
-				'id'       => 'style',
-				'title'    => __( 'Plugin Stylesheet', 'sixtenpress-filter' ),
-				'callback' => 'do_checkbox',
-				'section'  => 'general',
-				'args'     => array(
-					'setting' => 'style',
-					'label'   => __( 'Use the plugin styles?', 'sixtenpress-filter' ),
-				),
-			)
-		);
-		if ( $this->post_types ) {
-			foreach ( $this->post_types as $post_type ) {
-				$object   = get_post_type_object( $post_type );
-				$label    = $object->labels->name;
-				$fields[] = array(
-					'id'       => '[post_types]' . esc_attr( $post_type ),
-					'title'    => esc_attr( $label ),
-					'callback' => 'set_post_type_options',
-					'section'  => 'cpt',
-					'args'     => array( 'post_type' => $post_type ),
-				);
-			}
-		}
-
-		return $fields;
-	}
-
-	/**
 	 * Add the fields to the settings page.
 	 * @param $fields
 	 * @param $sections
@@ -276,22 +106,6 @@ class SixTenPressFilterSettings {
 				empty( $field['args'] ) ? array() : $field['args']
 			);
 		}
-	}
-
-	/**
-	 * Callback for general plugin settings section.
-	 */
-	public function general_section_description() {
-		$description = __( 'You can set the default filter settings here.', 'sixtenpress-filter' );
-		printf( '<p>%s</p>', wp_kses_post( $description ) );
-	}
-
-	/**
-	 * Callback for the content types section description.
-	 */
-	public function cpt_section_description() {
-		$description = __( 'Set the filter settings for each content type.', 'sixtenpress-filter' );
-		printf( '<p>%s</p>', wp_kses_post( $description ) );
 	}
 
 	/**

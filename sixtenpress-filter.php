@@ -35,6 +35,7 @@ function sixtenpressfilter_require() {
 		'class-sixtenpressfilter-help',
 		'class-sixtenpressfilter-output',
 		'class-sixtenpressfilter-settings',
+		'class-sixtenpressfilter-settings-page',
 	);
 
 	foreach ( $files as $file ) {
@@ -45,7 +46,7 @@ sixtenpressfilter_require();
 
 // Instantiate dependent classes
 $sixtenpressfilter_output   = new SixTenPressFilterOutput;
-$sixtenpressfilter_settings = new SixTenPressFilterSettings;
+$sixtenpressfilter_settings = new SixTenPressFilterSettingsPage;
 
 // Instantiate main class and pass in dependencies
 $sixtenpressfilter = new SixTenPressFilter(
