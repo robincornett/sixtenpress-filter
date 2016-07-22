@@ -3,7 +3,7 @@
 /**
  * @copyright $year Robin Cornett
  */
-class SixTenPressFilterSettingsPage extends SixTenPressFilterSettings {
+class SixTenPressFilterSettingsPage extends SixTenPressSettings {
 
 	/**
 	 * Option registered by plugin.
@@ -21,7 +21,7 @@ class SixTenPressFilterSettingsPage extends SixTenPressFilterSettings {
 	 * Slug for settings page.
 	 * @var string $page
 	 */
-	protected $page;
+	protected $page = 'sixtenpress';
 
 	/**
 	 * Settings fields registered by plugin.
@@ -40,7 +40,6 @@ class SixTenPressFilterSettingsPage extends SixTenPressFilterSettings {
 	 */
 	public function do_submenu_page() {
 
-		$this->page    = 'sixtenpress';
 		$this->setting = $this->get_setting();
 		$sections      = $this->register_sections();
 		$this->fields  = $this->register_fields();
@@ -64,7 +63,6 @@ class SixTenPressFilterSettingsPage extends SixTenPressFilterSettings {
 		} else {
 			add_action( "load-settings_page_{$this->page}", array( $help, 'help' ) );
 		}
-//		add_filter( 'sixtenpress_help_tabs', array( $help, 'tabs' ), 10, 2 );
 
 		$this->add_sections( $sections );
 		$this->add_fields( $this->fields, $sections );
@@ -151,6 +149,29 @@ class SixTenPressFilterSettingsPage extends SixTenPressFilterSettings {
 		}
 
 		return $sections;
+	}
+
+	/**
+	 * Define the array of post types for the plugin to show/use.
+	 * @return array
+	 */
+	protected function post_types() {
+		$args         = array(
+			'public'      => true,
+			'_builtin'    => false,
+			'has_archive' => true,
+		);
+		$output       = 'names';
+		$post_types   = get_post_types( $args, $output );
+		$post_types[] = 'post';
+		foreach ( $post_types as $post_type ) {
+			$taxonomies = $this->get_taxonomies( $post_type );
+			if ( ! $taxonomies ) {
+				unset( $post_types[ $post_type ] );
+			}
+		}
+
+		return $post_types;
 	}
 
 	/**
@@ -264,12 +285,6 @@ class SixTenPressFilterSettingsPage extends SixTenPressFilterSettings {
 		}
 
 		check_admin_referer( "{$this->page}_save-settings", "{$this->page}_nonce" );
-		$diff    = array_diff_key( $this->setting, $new_value );
-		foreach ( $diff as $key => $value ) {
-			if ( empty( $new_value[ $key ] ) ) {
-				unset( $this->setting[ $key ] );
-			}
-		}
 		$new_value = array_merge( $this->setting, $new_value );
 
 		foreach ( $this->fields as $field ) {
@@ -301,43 +316,5 @@ class SixTenPressFilterSettingsPage extends SixTenPressFilterSettings {
 		}
 
 		return $new_value;
-	}
-
-	/**
-	 * Determines if the user has permission to save the information from the submenu
-	 * page.
-	 *
-	 * @since    1.0.0
-	 * @access   protected
-	 *
-	 * @param    string    $action   The name of the action specified on the submenu page
-	 * @param    string    $nonce    The nonce specified on the submenu page
-	 *
-	 * @return   bool                True if the user has permission to save; false, otherwise.
-	 * @author   Tom McFarlin (https://tommcfarlin.com/save-wordpress-submenu-page-options/)
-	 */
-	protected function user_can_save( $action, $nonce ) {
-		$is_nonce_set   = isset( $_POST[ $nonce ] );
-		$is_valid_nonce = false;
-
-		if ( $is_nonce_set ) {
-			$is_valid_nonce = wp_verify_nonce( $_POST[ $nonce ], $action );
-		}
-		return ( $is_nonce_set && $is_valid_nonce );
-	}
-
-	/**
-	 * Returns a 1 or 0, for all truthy / falsy values.
-	 *
-	 * Uses double casting. First, we cast to bool, then to integer.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @param mixed $new_value Should ideally be a 1 or 0 integer passed in
-	 *
-	 * @return integer 1 or 0.
-	 */
-	protected function one_zero( $new_value ) {
-		return (int) (bool) $new_value;
 	}
 }
