@@ -1,7 +1,7 @@
 <?php
 
 /**
- * @copyright $year Robin Cornett
+ * @copyright 2016 Robin Cornett
  */
 class SixTenPressFilterSettingsPage extends SixTenPressSettings {
 
@@ -50,7 +50,7 @@ class SixTenPressFilterSettingsPage extends SixTenPressSettings {
 				__( '6/10 Press Filter', 'sixtenpress-filter' ),
 				'manage_options',
 				$this->page,
-				array( $this, 'do_settings_form' )
+				array( $this, 'do_simple_settings_form' )
 			);
 		}
 
@@ -66,25 +66,6 @@ class SixTenPressFilterSettingsPage extends SixTenPressSettings {
 
 		$this->add_sections( $sections );
 		$this->add_fields( $this->fields, $sections );
-	}
-
-	/**
-	 * Output the plugin settings form.
-	 *
-	 * @since 1.0.0
-	 */
-	public function do_settings_form() {
-
-		echo '<div class="wrap">';
-		echo '<h1>' . esc_attr( get_admin_page_title() ) . '</h1>';
-		echo '<form action="options.php" method="post">';
-		settings_fields( $this->page );
-		do_settings_sections( $this->page );
-		wp_nonce_field( "{$this->page}_save-settings", "{$this->page}_nonce", false );
-		submit_button();
-		echo '</form>';
-		echo '</div>';
-
 	}
 
 	/**
@@ -302,7 +283,7 @@ class SixTenPressFilterSettingsPage extends SixTenPressSettings {
 					break;
 
 				case 'do_checkbox_array':
-					foreach ( $field['args']['options'] as $option ) {
+					foreach ( $field['args']['choices'] as $option ) {
 						$new_value[ $field['id'] ][ $option['choice'] ] = $this->one_zero( $new_value[ $field['id'] ][ $option['choice'] ] );
 					}
 					break;

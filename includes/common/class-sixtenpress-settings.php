@@ -30,6 +30,14 @@ class SixTenPressSettings {
 	protected $tab = null;
 
 	/**
+	 * Check if 6/10 Press is active.
+	 * @return bool
+	 */
+	protected function is_sixten_active() {
+		return (bool) function_exists( 'sixtenpress_get_setting' );
+	}
+
+	/**
 	 * Set which tab is considered active.
 	 * @return string
 	 * @since 1.0.0
@@ -39,13 +47,32 @@ class SixTenPressSettings {
 	}
 
 	/**
+	 * Generic function to output a simple settings form.
+	 *
+	 * @since 1.0.0
+	 */
+	public function do_simple_settings_form() {
+
+		echo '<div class="wrap">';
+		echo '<h1>' . esc_attr( get_admin_page_title() ) . '</h1>';
+		echo '<form action="options.php" method="post">';
+		settings_fields( $this->page );
+		do_settings_sections( $this->page );
+		wp_nonce_field( "{$this->page}_save-settings", "{$this->page}_nonce", false );
+		submit_button();
+		echo '</form>';
+		echo '</div>';
+
+	}
+
+	/**
 	 * Add sections to the settings page.
 	 * @param $sections
 	 */
 	public function add_sections( $sections ) {
+		$page = $this->page;
 		foreach ( $sections as $section ) {
 			$register = $section['id'];
-			$page     = $this->page;
 			if ( class_exists( 'SixTenPress' ) ) {
 				$register = $this->page . '_' . $section['id'];
 				$page     = $this->page . '_' . $section['tab'];
@@ -110,7 +137,7 @@ class SixTenPressSettings {
 	public function render_buttons( $id, $name ) {
 		$id = $id ? (int) $id : '';
 		printf( '<input type="hidden" class="upload_image_id" id="%1$s" name="%1$s" value="%2$s" />', esc_attr( $name ), esc_attr( $id ) );
-		printf( '<input id="%s" type="button" class="upload_logo_image button-secondary" value="%s" />',
+		printf( '<input id="%s" type="button" class="upload_image button-secondary" value="%s" />',
 			esc_attr( $name ),
 			esc_attr__( 'Select Image', 'sixtenpress' )
 		);
@@ -119,6 +146,22 @@ class SixTenPressSettings {
 				esc_attr__( 'Delete Image', 'sixtenpress' )
 			);
 		}
+	}
+
+	/**
+	 * Render image preview
+	 * @param $id
+	 *
+	 * @return string|void
+	 */
+	public function render_image_preview( $id ) {
+		if ( empty( $id ) ) {
+			return '';
+		}
+
+		$preview = wp_get_attachment_image_src( (int) $id, 'medium' );
+		$image   = sprintf( '<div class="upload_image_preview"><img src="%s" style="max-width:320px;" /></div>', $preview[0] );
+		return $image;
 	}
 
 	/**
@@ -186,15 +229,77 @@ class SixTenPressSettings {
 	 * @since 1.0.1
 	 */
 	public function do_number( $args ) {
+		$setting = isset( $this->setting[ $args['setting'] ] ) ? $this->setting[ $args['setting'] ] : 0;
+		$label   = $args['setting'];
+		if ( isset( $args['key'] ) ) {
+			$setting = isset( $this->setting[ $args['key'] ][ $args['setting'] ] ) ? $this->setting[ $args['key'] ][ $args['setting'] ] : 0;
+			$label   = "{$args['key']}][{$args['setting']}";
+		}
 		printf( '<label for="%5$s[%3$s]"><input type="number" step="%6$s" min="%1$s" max="%2$s" id="%5$s[%3$s]" name="%5$s[%3$s]" value="%4$s" class="small-text" />%7$s</label>',
 			$args['min'],
 			(int) $args['max'],
-			esc_attr( $args['setting'] ),
-			esc_attr( $this->setting[ $args['setting'] ] ),
+			esc_attr( $label ),
+			esc_attr( $setting ),
 			esc_attr( $this->get_setting_name() ),
 			isset( $args['step'] ) ? esc_attr( $args['step'] ) : (int) 1,
 			isset( $args['value'] ) ? esc_attr( $args['value'] ) : ''
 		);
+		$this->do_description( $args['setting'] );
+	}
+
+	/**
+	 * Generic callback to create a select/dropdown setting.
+	 *
+	 * @since 2.0.0
+	 */
+	public function do_select( $args ) {
+		$function = 'pick_' . $args['options'];
+		$options  = $this->$function();
+		$array    = $this->get_select_setting( $args );
+		$setting  = $array['setting'];
+		$label    = $array['label'];
+		printf( '<label for="%s[%s]">', esc_attr( $this->get_setting_name() ), esc_attr( $label ) );
+		printf( '<select id="%1$s[%2$s]" name="%1$s[%2$s]">', esc_attr( $this->get_setting_name() ), esc_attr( $label ) );
+		foreach ( (array) $options as $name => $key ) {
+			printf( '<option value="%s" %s>%s</option>', esc_attr( $name ), selected( $name, $setting, false ), esc_attr( $key ) );
+		}
+		echo '</select></label>';
+		$this->do_description( $args['setting'] );
+	}
+
+	/**
+	 * Get the setting and label for a select option. Includes support for a secondary/array select.
+	 * @param $args
+	 *
+	 * @return array
+	 */
+	protected function get_select_setting( $args ) {
+		$setting = isset( $this->setting[ $args['setting'] ] ) ? $this->setting[ $args['setting'] ] : 0;
+		$label   = $args['setting'];
+		if ( isset( $args['key'] ) ) {
+			$setting = isset( $this->setting[ $args['key'] ][ $args['setting'] ] ) ? $this->setting[ $args['key'] ][ $args['setting'] ] : 0;
+			$label   = "{$args['key']}][{$args['setting']}";
+		}
+		return array( 'setting' => $setting, 'label' => $label );
+	}
+
+	/**
+	 * Set up choices for checkbox array
+	 * @param $args array
+	 */
+	public function do_checkbox_array( $args ) {
+		foreach ( $args['choices'] as $key => $label ) {
+			$setting = isset( $this->setting[ $args['setting'] ][ $key ] ) ? $this->setting[ $args['setting'] ][ $key ] : 0;
+			printf( '<input type="hidden" name="%s[%s][%s]" value="0" />', esc_attr( $this->get_setting_name() ), esc_attr( $args['setting'] ), esc_attr( $key ) );
+			printf( '<label for="%4$s[%5$s][%1$s]" style="margin-right:12px;"><input type="checkbox" name="%4$s[%5$s][%1$s]" id="%4$s[%5$s][%1$s]" value="1"%2$s class="code"/>%3$s</label>',
+				esc_attr( $key ),
+				checked( 1, $setting, false ),
+				esc_html( $label ),
+				esc_attr( $this->get_setting_name() ),
+				esc_attr( $args['setting'] )
+			);
+			echo isset( $args['clear'] ) && $args['clear'] ? '<br />' : '';
+		}
 		$this->do_description( $args['setting'] );
 	}
 

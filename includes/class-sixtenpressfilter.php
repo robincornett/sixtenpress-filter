@@ -40,7 +40,7 @@ class SixTenPressFilter {
 	 */
 	public function load_settings_page() {
 		if ( ! class_exists( 'SixTenPressSettings' ) ) {
-			require plugin_dir_path( __FILE__ ) . 'class-sixtenpress-settings.php';
+			require plugin_dir_path( __FILE__ ) . '/common/class-sixtenpress-settings.php';
 		}
 		require plugin_dir_path( __FILE__ ) . 'class-sixtenpressfilter-settings-page.php';
 		$settings = new SixTenPressFilterSettingsPage();
