@@ -55,7 +55,12 @@ class SixTenPressFilterOutput {
 	 * Function to enqueue filter scripts and do the filter things.
 	 */
 	public function enqueue_filter() {
-		wp_enqueue_script( 'sixtenpress-filter', plugin_dir_url( __FILE__ ) . 'js/filter.js', array(), '1.0.0', true );
+		$dependent_scripts = array();
+		wp_register_script( 'infinite-scroll', plugin_dir_url( __FILE__ ) . 'js/jquery.infinitescroll.min.js', array(), '2.1.0', true );
+		if ( $this->setting['infinite'] ) {
+			$dependent_scripts[] = 'infinite-scroll';
+		}
+		wp_enqueue_script( 'sixtenpress-filter', plugin_dir_url( __FILE__ ) . 'js/filter.js', $dependent_scripts, '1.0.0', true );
 
 		add_action( 'wp_print_scripts', array( $this, 'localize' ) );
 	}
@@ -77,7 +82,13 @@ class SixTenPressFilterOutput {
 			'selector' => 'main .entry',
 		) );
 
-		return $options;
+		$array = array(
+			'infinite' => (bool) $this->setting['infinite'],
+			'loading'  => plugin_dir_url( __FILE__ ) . 'images/ajax-loading.gif',
+			'finished' => __( 'No more items to load.', 'sixtenpress-isotope' ),
+		);
+
+		return array_merge( $options, $array );
 	}
 
 	/**

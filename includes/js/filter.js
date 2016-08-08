@@ -9,6 +9,11 @@
 
 	SixTenFilter.init = function () {
 
+		if ( SixTenFilter.params.infinite ) {
+			$( '.archive-pagination' ).css( 'display', 'none' );
+			$( window ).on( 'resize.stp', _doInfiniteScroll ).triggerHandler( 'resize.stp' );
+		}
+
 		/**
 		 * Filter using an unordered list.
 		 */
@@ -23,6 +28,31 @@
 			_doSelect( $( this ) );
 		} );
 	};
+
+	/**
+	 * Do infinite scroll
+	 * @private
+	 */
+	function _doInfiniteScroll() {
+		var _container   = $( '.content' ),
+		    _navSelector = '.archive-pagination';
+		_container.infinitescroll( {
+				navSelector: _navSelector,
+				nextSelector: _navSelector + ' .pagination-next a',
+				itemSelector: SixTenFilter.params.selector,
+				loading: {
+					finishedMsg: SixTenFilter.params.finished,
+					img: SixTenFilter.params.loading,
+					speed: 'fast'
+				}
+			},
+			function ( newItems ) {
+				var _newItems = $( newItems ).css( { opacity: 0 } );
+				_container.append( _newItems );
+				_newItems.animate( { opacity: 1 } );
+			}
+		);
+	}
 
 	/**
 	 * Filter using an unordered list (buttons)

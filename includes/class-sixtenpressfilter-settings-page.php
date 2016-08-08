@@ -97,6 +97,7 @@ class SixTenPressFilterSettingsPage extends SixTenPressSettings {
 		$defaults = array(
 			'posts_per_page' => (int) get_option( 'posts_per_page', 10 ),
 			'style'          => 1,
+			'infinite'       => 0,
 		);
 
 		$setting = get_option( 'sixtenpressfilter', $defaults );
@@ -180,6 +181,16 @@ class SixTenPressFilterSettingsPage extends SixTenPressSettings {
 				),
 			),
 			array(
+				'id'       => 'infinite',
+				'title'    => __( 'Infinite Scroll', 'sixtenpress-filter' ),
+				'callback' => 'do_checkbox',
+				'section'  => 'general',
+				'args'     => array(
+					'setting' => 'infinite',
+					'label'   => __( 'Enable infinite scroll?', 'sixtenpress-filter' ),
+				),
+			),
+			array(
 				'id'       => 'style',
 				'title'    => __( 'Plugin Stylesheet', 'sixtenpress-filter' ),
 				'callback' => 'do_checkbox',
@@ -188,7 +199,7 @@ class SixTenPressFilterSettingsPage extends SixTenPressSettings {
 					'setting' => 'style',
 					'label'   => __( 'Use the plugin styles?', 'sixtenpress-filter' ),
 				),
-			)
+			),
 		);
 		if ( $this->post_types ) {
 			foreach ( $this->post_types as $post_type ) {
